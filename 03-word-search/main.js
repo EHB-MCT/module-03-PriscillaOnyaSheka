@@ -16,41 +16,61 @@ function setup() {
     cellH = height / rows;
 
     // 2. Initialize Data
-    // Create a loop (rows * cols)
-    // For each item, create an Object: { char: randomChar, x: ..., y: ..., found: false }
-    // Push object to 'characters' array
+    for (let i = 0; i < (rows * cols); i++) {
+        let x = (i % cols) * cellW + cellW / 2;
+        let y = floor(i / cols) * cellH + cellH / 2;
+        let randomChar = String.fromCharCode(floor(random(65, 91)));
+        
+        characters.push({
+            char: randomChar,
+            x: x,
+            y: y,
+            found: false
+        });
+    }
 
-    // Listen for input changes, call updateSearch() when input changes
-
+    // Luister naar input veranderingen
+    let searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', updateSearch);
 }
 
 function draw() {
     background(255);
 
     // 3. Draw the Grid
-    // Loop through characters array
-    // Check if item.found is true -> Fill Black/Bold
-    // Else -> Fill Grey/Normal
-    // Draw text(item.char, item.x, item.y)
+    characters.forEach(item => {
+        if (item.found) {
+            fill(0);
+            textStyle(BOLD);
+        } else {
+            fill(200);
+            textStyle(NORMAL);
+        }
+        text(item.char, item.x, item.y);
+    });
 }
 
 function updateSearch() {
-    // 4. Implement sequential search
+    // Eerst: Reset alle objecten
+    characters.forEach(item => item.found = false);
 
-    // First: Reset all characters (set found = false)
-
-    // Get input value
     let inputVal = this.value.toUpperCase();
-    // Split input value into array of characters
     let searchChars = inputVal.split('');
     let lastFoundIndex = -1;
 
-    // Loop through searchChars
+    // Loop door de ingetypte letters
+    for (let i = 0; i < searchChars.length; i++) {
+        let targetChar = searchChars[i];
+        
+        // Zoek de index van het matching karakter, MAAR de index moet hoger zijn dan lastFoundIndex
+        let foundIdx = characters.findIndex((item, index) => {
+            return item.char === targetChar && index > lastFoundIndex;
+        });
 
-    // Find the matching object index in 'characters' array
-    // Condition: char matches AND index > lastFoundIndex
-
-    // If found: 
-    // Set update found attribute and update lastFoundIndex
-
+        // Als we de letter in de juiste volgorde vinden, updaten we de status
+        if (foundIdx !== -1) {
+            characters[foundIdx].found = true;
+            lastFoundIndex = foundIdx; // Update de index voor de volgende letter!
+        }
+    }
 }
